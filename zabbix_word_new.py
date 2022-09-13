@@ -1,6 +1,5 @@
 from importlib.resources import path
 import requests
-from turtle import title, width
 from docx import Document
 from docx.shared import Cm
 from docx.shared import Pt  #用来设置字体的大小
@@ -32,7 +31,7 @@ class Api:
         with open("images/%s/%s.png" % (self.current_date, graph_id), "wb") as fd:
             fd.write(data.content)
 
-    def testToGenerateWORD(self,pic_path):
+    def testToGenerateWORD(self):
         #创建word
         document = Document()
 
@@ -85,9 +84,11 @@ class Api:
         run3.font.name = '微软雅黑'
         run3._element.rPr.rFonts.set(qn('w:eastAsia'),'微软雅黑')
         run3.font.color.rgb=RGBColor(0,0,0)
-        data_1 = ('服务器CPU指标聚合','服务器内存指标聚合','服务器磁盘使用率','服务器网卡入口流量','服务器网卡出口流量')
 
-        for i in data_1:
+        #正文
+        data_1 = ('服务器CPU指标聚合','服务器内存指标聚合','服务器磁盘使用率','服务器网卡入口流量','服务器网卡出口流量')
+        pic_path = [file+"/910.png",file+"/1938.png",file+"/1936.png"]
+        for i,pic in zip(data_1,pic_path) :
             para_graph=document.add_paragraph('')#返回段落对象
             para_graph.alignment=WD_ALIGN_PARAGRAPH.CENTER#设置为居中
             run5 = para_graph.add_run(i)
@@ -96,19 +97,14 @@ class Api:
             run5._element.rPr.rFonts.set(qn('w:eastAsia'),'微软雅黑')
             run5.font.color.rgb=RGBColor(0,0,0)
 
-            document.add_picture(pic_path,width=Cm(16.3), height=Cm(10.04))
+            document.add_picture(pic,width=Cm(16.3), height=Cm(10.04))
             document.add_page_break() # 添加 word 文件的分页
         document.save("./output/服务器监控指标-%s.docx" %self.current_date)
 
 if __name__ ==  "__main__":
     file = ("images/%s" % datetime.datetime.now().strftime("%Y%m%d"))
-    pic_path = [file+"/910.png",file+"/1938.png",file+"/1936.png"]
     graph_id = ['910','1938','1936']
     api = Api()
-
     for x in graph_id:
         api.fetchDataGraph(x)
-    for v in pic_path:
-        api.testToGenerateWORD(v)
-
-    
+    api.testToGenerateWORD()
